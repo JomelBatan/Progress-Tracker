@@ -68,7 +68,7 @@ export default function Stats({ data, dateRange }) {
             <BsFire className="h-8 w-4 text-orange-400" />
           </div>
           <div className="stat-desc text-gray-400">
-            Successful Days in a Row
+            Success Consecutive Days
           </div>
         </div>
       )}
