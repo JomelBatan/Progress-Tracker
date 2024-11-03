@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import MonthTab from "./components/MonthlyTab";
 import CalendarTable from "./components/Calendar";
 import Navbar from "./components/NavBar";
+import { FaCalendarAlt } from "react-icons/fa";
 
 function App() {
   const [days, setDays] = useState([]);
@@ -17,7 +18,6 @@ function App() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
-
   useEffect(() => {
     fetchAllDays();
 
@@ -58,7 +58,7 @@ function App() {
           year: "numeric",
         });
         setSelectedMonth(defaultMonth);
-        fetchDays(defaultMonth); // Fetch default month's data
+        fetchDays(defaultMonth);
       }
     }
   }
@@ -188,13 +188,21 @@ function App() {
 
   return (
     <>
-      <div className="flex items-center justify-center flex-col">
-        <Toaster position="top-center" />
-        <MonthTab
-          availableMonths={availableMonths}
-          handleMonthSelect={handleMonthSelect}
-          selectedMonth={selectedMonth}
-        />
+      <Navbar />
+      <Toaster position="top-center" />
+      <MonthTab
+        availableMonths={availableMonths}
+        handleMonthSelect={handleMonthSelect}
+        selectedMonth={selectedMonth}
+      />
+      <div className="flex items-center justify-center flex-col relative py-4">
+        <button
+          className="absolute right-4 top-72 md:top-28 p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          onClick={() => setShowCalendar((prev) => !prev)}
+        >
+          <FaCalendarAlt />
+        </button>
+
         <Stats
           data={{ ...stats, streak }}
           dateRange={
@@ -209,11 +217,7 @@ function App() {
           }
         />
         <div className="flex flex-col md:flex-row-reverse">
-          <Interface
-            data={stats}
-            addDay={addDay}
-            setShowCalendar={setShowCalendar}
-          />
+          <Interface data={stats} addDay={addDay} />
           {showCalendar && (
             <CalendarTable data={days} selectedMonth={selectedMonth} />
           )}

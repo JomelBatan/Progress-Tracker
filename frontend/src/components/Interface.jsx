@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { FaCalendarAlt } from "react-icons/fa";
-export default function Interface({ data, addDay, setShowCalendar }) {
+
+export default function Interface({ data, addDay }) {
   const [value, setValue] = useState(0);
 
   useEffect(() => {
@@ -19,13 +19,7 @@ export default function Interface({ data, addDay, setShowCalendar }) {
       : "text-red-500";
 
   return (
-    <div className="flex flex-col items-center justify-center relative">
-      <button
-        className="absolute -right-4 -top-4 p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        onClick={() => setShowCalendar((prev) => !prev)}
-      >
-        <FaCalendarAlt />
-      </button>
+    <div className="flex flex-col items-center justify-center">
       <div className="relative mb-8">
         <div
           id="progress"
