@@ -66,7 +66,7 @@ const CalendarTable = ({ data, selectedMonth }) => {
   };
 
   return (
-    <div className="overflow-x-auto p-8">
+    <div className="overflow-x-auto" style={{ border: "5px solid red" }}>
       <table className="min-w-full border-collapse border text-gray-600 border-gray-200 shadow-lg rounded-lg">
         <thead>
           <tr className="bg-gray-100 text-gray-700">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Stats from "./components/Stats";
 import Interface from "./components/Interface";
 import { supabase } from "./supabaseClient";
@@ -18,6 +18,9 @@ function App() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const lastClickRef = useRef(0);
+  const throttleDelay = 1000;
   useEffect(() => {
     fetchAllDays();
 
@@ -114,7 +117,6 @@ function App() {
       setStartDate(startDay);
       setEndDate(endDay);
     } else {
-      // If "Total" is selected, set start and end dates to null
       setStartDate(null);
       setEndDate(null);
     }
@@ -134,30 +136,44 @@ function App() {
   }
 
   async function addDay(status) {
-    const today = new Date().toISOString().split("T")[0];
-
-    const dayExists = days.some((day) => day.date === today);
-    if (dayExists) {
-      toast.error("A record for today already exists!");
+    const now = Date.now();
+    if (now - lastClickRef.current < throttleDelay) {
+      toast.error("Please wait before clicking again.");
       return;
     }
+    lastClickRef.current = now;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const today = new Date().toISOString().split("T")[0];
 
-    const { data, error } = await supabase
-      .from("MyTracker")
-      .insert([{ date: today, status }]);
+      const dayExists = days.some((day) => day.date === today);
+      if (dayExists) {
+        toast.error("A record for today already exists!");
+        return;
+      }
 
-    if (error) {
-      toast.error("Error adding day:", error.message);
-      return;
-    }
+      const { data, error } = await supabase
+        .from("MyTracker")
+        .insert([{ date: today, status }]);
 
-    if (data && data[0]) {
-      const newDays = [...days, data[0]];
-      setDays(newDays);
-      calculateStats(newDays);
-      calculateStreak(newDays);
+      if (error) {
+        toast.error("Error adding day:", error.message);
+        return;
+      }
 
-      toast.success(`You recorded a ${status} day!`);
+      if (data && data[0]) {
+        const newDays = [...days, data[0]];
+        setDays(newDays);
+        calculateStats(newDays);
+        calculateStreak(newDays);
+
+        toast.success(`You recorded a ${status} day!`);
+      }
+    } catch (e) {
+      toast.error(`Unexpected error: ${e.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -217,7 +233,7 @@ function App() {
           }
         />
         <div className="flex flex-col md:flex-row-reverse">
-          <Interface data={stats} addDay={addDay} />
+          <Interface data={stats} addDay={addDay} isSubmitting={isSubmitting} />
           {showCalendar && (
             <CalendarTable data={days} selectedMonth={selectedMonth} />
           )}
